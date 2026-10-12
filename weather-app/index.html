@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherCast — Immersive Weather Experience</title>
+  <!-- Google Fonts: Outfit for headings, Inter for UI text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Full-Screen Weather Overlays -->
+  <canvas id="weather-canvas"></canvas>
+  <div class="sun-overlay">
+    <div class="sun-flare"></div>
+    <div class="sun-ray ray-1"></div>
+    <div class="sun-ray ray-2"></div>
+    <div class="sun-ray ray-3"></div>
+  </div>
+  <div class="frost-overlay"></div>
+  <div class="clouds-overlay">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+  </div>
+
+  <!-- Main Web App Layout -->
+  <div class="app-container">
+    
+    <!-- Top Navigation / Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">✦</span>
+        <h1>AetherCast</h1>
+      </div>
+      
+      <!-- Location Selector -->
+      <div class="location-selector">
+        <label for="city-select" class="sr-only">Choose Location</label>
+        <select id="city-select">
+          <option value="mumbai">Mumbai, India</option>
+          <option value="london" selected>London, UK</option>
+          <option value="newyork">New York, USA</option>
+          <option value="tokyo">Tokyo, Japan</option>
+          <option value="reykjavik">Reykjavik, Iceland</option>
+          <option value="cairo">Cairo, Egypt</option>
+        </select>
+      </div>
+
+      <!-- Live Clock & Ambient Audio Toggle -->
+      <div class="header-actions">
+        <div id="live-time" class="live-time">12:00 PM</div>
+        <button id="sound-toggle" class="btn-sound" title="Toggle weather sounds">
+          <svg class="sound-icon sound-off" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-9.27 2L3.27 6.73 7.54 11H3v2h4.54l4.27 4.27c.56.56 1.52.16 1.52-.63V11.23l4.63 4.63c-.45.34-.94.62-1.47.82v2.04c1.07-.27 2.06-.82 2.89-1.57l1.9 1.9 1.41-1.41L6.14 3.82 4.73 5.23zM12 4v4.73L9.27 6 12 4z"/>
+          </svg>
+          <svg class="sound-icon sound-on" viewBox="0 0 24 24" width="20" height="20" style="display: none;">
+            <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Primary Glass Card: Today's Weather -->
+      <section class="weather-card primary-card">
+        <div class="card-glow"></div>
+        <div class="today-overview">
+          <div class="meta">
+            <h2 id="current-location">London</h2>
+            <p id="current-date">Monday, 22 June</p>
+          </div>
+          <div class="temp-condition">
+            <div class="temp-container">
+              <span id="current-temp" class="temp-value">18</span><span class="temp-unit">°C</span>
+            </div>
+            <div class="condition-badge">
+              <span id="condition-icon" class="badge-icon">🌧️</span>
+              <span id="current-condition">Light Rain</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="card-divider">
+
+        <!-- Weather Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Humidity</span>
+            <span id="humidity-value" class="metric-value">78%</span>
+            <div class="metric-bar"><div id="humidity-bar" class="metric-progress" style="width: 78%;"></div></div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Wind Speed</span>
+            <span id="wind-value" class="metric-value">14 km/h</span>
+            <div class="metric-bar"><div id="wind-bar" class="metric-progress" style="width: 45%;"></div></div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">UV Index</span>
+            <span id="uv-value" class="metric-value">2 (Low)</span>
+            <div class="metric-bar"><div id="uv-bar" class="metric-progress" style="width: 20%;"></div></div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Feels Like</span>
+            <span id="feels-like-value" class="metric-value">17°C</span>
+            <div class="metric-bar"><div id="feels-bar" class="metric-progress" style="width: 60%;"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Secondary Glass Card: Hourly Forecast -->
+      <section class="weather-card hourly-card">
+        <h3>Hourly Forecast</h3>
+        <div class="hourly-timeline-container">
+          <div class="timeline-glow"></div>
+          <div class="hourly-timeline" id="hourly-timeline">
+            <!-- Hourly items will be dynamically generated by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- India Weather Hub -->
+      <section class="weather-card india-hub-card">
+        <div class="card-header-actions">
+          <h3>India Weather Hub</h3>
+          <span class="scroll-tip">Click city to view details</span>
+        </div>
+        <div class="india-grid" id="india-grid">
+          <!-- Dynamically populated from JS mock database -->
+        </div>
+      </section>
+
+      <!-- Tertiary Glass Card: Monthly Forecast -->
+      <section class="weather-card monthly-card">
+        <div class="card-header-actions">
+          <h3>30-Day Forecast</h3>
+          <span class="scroll-tip">Scroll to explore →</span>
+        </div>
+        <div class="monthly-grid" id="monthly-grid">
+          <!-- Monthly items will be dynamically generated by app.js -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Demo Controls Panel (Floating or Bottom Anchored) -->
+    <aside class="demo-panel">
+      <div class="demo-header">
+        <h4>Demo Weather States</h4>
+        <p>Manually trigger full-screen animations</p>
+      </div>
+      <div class="demo-buttons">
+        <button class="btn-demo active" data-weather="sunny">
+          <span class="btn-icon">☀️</span> Sunny
+        </button>
+        <button class="btn-demo" data-weather="rainy">
+          <span class="btn-icon">🌧️</span> Rainy
+        </button>
+        <button class="btn-demo" data-weather="cold">
+          <span class="btn-icon">❄️</span> Cold
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Audio Elements for weather atmosphere -->
+  <audio id="audio-rain" loop src="https://assets.mixkit.co/active_storage/sfx/2507/2507-84.wav"></audio>
+  <audio id="audio-wind" loop src="https://assets.mixkit.co/active_storage/sfx/2493/2493-84.wav"></audio>
+  <audio id="audio-birds" loop src="https://assets.mixkit.co/active_storage/sfx/1218/1218-84.wav"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
